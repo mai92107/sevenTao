@@ -4,12 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
@@ -27,7 +22,8 @@ public class Room {
 	@ElementCollection
 	private List<String> specialties;
 
-	private int roomPrice;
+	@OneToMany(mappedBy = "room")
+	private List<RoomPrice> roomPrices;
 
 	private int roomSize;
 
@@ -37,5 +33,10 @@ public class Room {
 	@JsonIgnore
 	private Hotel hotel;
 
+	@OneToMany(mappedBy = "room")
+	List<Order> orders;
+
 	private boolean available = true;
+
+
 }

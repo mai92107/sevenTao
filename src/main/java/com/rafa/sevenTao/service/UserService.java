@@ -2,21 +2,26 @@ package com.rafa.sevenTao.service;
 
 import java.util.List;
 
-import com.rafa.sevenTao.model.User;
+import com.rafa.sevenTao.model.Hotel;
+import com.rafa.sevenTao.model.Users;
 import com.rafa.sevenTao.request.SignUpRequest;
+import com.rafa.sevenTao.request.UpdateProfileRequest;
 
 public interface UserService {
 
-	public User adduser(SignUpRequest request);
+	public Users adduser(SignUpRequest request);
 
-	public void deleteUserByUserId(int userId);
+	public void deleteUser(Users user);
 
-	public User findUserByUserId(int userId);
+	public Users findUser(int userId);
 
-	public List<User> getAllUser();
+	public List<Users> getAllUser();
 
-	public User setUserToHotelerFromUserId(int userId);
+	public Users setUserToHotelerFromUserId(int userId);
 
-	public User updateUserData(int userId, SignUpRequest request);
+	public Users updateUserData(Users user, UpdateProfileRequest request);
 
+	public List<Hotel> getFavoriteHotels(Users user);
+
+	public Users findUserByJwt(String jwt);
 }

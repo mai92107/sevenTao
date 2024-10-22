@@ -21,7 +21,7 @@ public class RoomServiceImp implements RoomService {
 		Room room = new Room();
 
 		room.setRoomName(request.getRoomName());
-		room.setRoomPrice(request.getRoomPrice());
+//		room.setRoomPrice(request.getRoomPrice());
 		room.setRoomPic(request.getRoomPic());
 		room.setSpecialties(request.getSpecialties());
 		room.setCapacity(request.getCapacity());

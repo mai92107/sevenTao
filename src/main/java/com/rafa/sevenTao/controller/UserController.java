@@ -3,61 +3,70 @@ package com.rafa.sevenTao.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.rafa.sevenTao.request.UpdateProfileRequest;
+import com.rafa.sevenTao.service.HotelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.web.bind.annotation.*;
 
-import com.rafa.sevenTao.model.User;
+import com.rafa.sevenTao.model.Hotel;
+import com.rafa.sevenTao.model.Users;
 import com.rafa.sevenTao.request.SignUpRequest;
 import com.rafa.sevenTao.service.UserService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @CrossOrigin
 @RestController
 @RequestMapping("/member")
 public class UserController {
 
-	@Autowired
-	UserService userService;
+    @Autowired
+    UserService userService;
 
-	@PostMapping("/add")
-	public ResponseEntity<User> adduser(@RequestBody SignUpRequest request) {
-		User user = userService.adduser(request);
-		return new ResponseEntity<>(user, HttpStatus.CREATED);
-	};
+    @Autowired
+    HotelService hotelService;
 
-	@DeleteMapping("/delete")
-	public ResponseEntity<?> deleteUserByEmail(@RequestBody Map<String, String> request) {
-		int userId = Integer.parseInt(request.get("userId"));
-		userService.deleteUserByUserId(userId);
-		return new ResponseEntity<>(HttpStatus.OK);
-	};
+    @DeleteMapping()
+    public ResponseEntity<?> deleteUserByEmail(@RequestBody Map<String, String> request) {
+        Users user = userService.findUser(Integer.parseInt(request.get("userId")));
+        userService.deleteUser(user);
+        return new ResponseEntity<>(HttpStatus.OK);
+    };
 
-	@GetMapping("/{userId}")
-	public ResponseEntity<User> findUserByUserId(@PathVariable int userId) {
-		User user = userService.findUserByUserId(userId);
-		return new ResponseEntity<User>(user, HttpStatus.OK);
-	};
+    @GetMapping
+    public ResponseEntity<Users> getUserProfile(@RequestHeader("Authorization") String jwt) {
+        Users user = userService.findUserByJwt(jwt);
+        return new ResponseEntity<Users>(user, HttpStatus.OK);
+    }
 
-//
-	@GetMapping("/")
-	public ResponseEntity<List<User>> getAllUser() {
-		List<User> allList = userService.getAllUser();
-		return new ResponseEntity<List<User>>(allList, HttpStatus.OK);
-	};
+    ;
 
-	@PutMapping("/{userId}")
-	public ResponseEntity<User> updateUserDataByUserId(@PathVariable int userId, @RequestBody SignUpRequest request) {
-		User updatedUser = userService.updateUserData(userId, request);
-		return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-	}
+    @PutMapping
+    public ResponseEntity<Users> updateUserData(@RequestHeader("Authorization") String jwt, @RequestBody UpdateProfileRequest request) {
+        Users user = userService.findUserByJwt(jwt);
+        Users updatedUser = userService.updateUserData(user, request);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+    }
+
+    @GetMapping("/favoriteHotels")
+    public ResponseEntity<List<Hotel>> getUserFavoriteHotel(@RequestHeader("Authorization") String jwt) {
+        Users user = userService.findUserByJwt(jwt);
+        System.out.println(user);
+        List<Hotel> favoriteHotels = userService.getFavoriteHotels(user);
+        return new ResponseEntity<>(favoriteHotels, HttpStatus.OK);
+    }
+
+    @GetMapping("/{hotelId}/favorite")
+    public ResponseEntity<Boolean> checkIsFavoriteHotel(@RequestHeader("Authorization") String jwt, @PathVariable int hotelId) {
+        Users user = userService.findUserByJwt(jwt);
+        Hotel hotel = hotelService.findHotelByHotelId(hotelId);
+        List<Hotel> favoriteHotels = userService.getFavoriteHotels(user);
+        boolean isFavoriteHotel = favoriteHotels.contains(hotel);
+        return new ResponseEntity<>(isFavoriteHotel, HttpStatus.OK);
+    }
+
 
 }

@@ -4,88 +4,110 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.rafa.sevenTao.config.JwtProvider;
+import com.rafa.sevenTao.config.UserDetailService;
+import com.rafa.sevenTao.model.USER_ROLE;
+import com.rafa.sevenTao.request.UpdateProfileRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.rafa.sevenTao.model.User;
+import com.rafa.sevenTao.model.Hotel;
+import com.rafa.sevenTao.model.Users;
 import com.rafa.sevenTao.repository.UserRepository;
 import com.rafa.sevenTao.request.SignUpRequest;
 
 @Service
 public class UserServiceImp implements UserService {
 
-	List<User> allUsersData = new ArrayList<>();
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
-	@Autowired
-	UserRepository userRepository;
+    List<Users> allUsersData = new ArrayList<>();
 
-	@Override
-	public User adduser(SignUpRequest request) {
-		User newUser = new User();
-		newUser.setAccount(request.getAccount());
-		newUser.setPassword(request.getPassword());
-		newUser.setLastName(request.getLastName());
-		newUser.setFirstName(request.getFirstName());
-		newUser.setEmail(request.getEmail());
-		newUser.setNickName(request.getNickName());
-		newUser.setSex(request.getSex());
-		newUser.setPhoneNum(request.getPhoneNum());
-		newUser.setAddress(request.getAddress());
+    @Autowired
+    UserRepository userRepository;
 
-		userRepository.save(newUser);
-		System.out.println(newUser.toString());
-		return newUser;
-	}
+    @Autowired
+    JwtProvider jwtProvider;
 
-	@Override
-	public void deleteUserByUserId(int userId) {
+    @Autowired
+    UserDetailService userDetailService;
 
-		userRepository.deleteById(userId);
-		System.out.println("deleted user" + userId);
+    @Override
+    public Users adduser(SignUpRequest request) {
+        Users newUser = new Users();
+        newUser.setPassword(encoder.encode(request.getPassword()));
+        newUser.setLastName(request.getLastName());
+        newUser.setFirstName(request.getFirstName());
+        newUser.setEmail(request.getEmail());
+        newUser.setPhoneNum(request.getPhoneNum());
 
-	}
+        userRepository.save(newUser);
+        System.out.println(newUser.toString());
+        return newUser;
+    }
 
-	@Override
-	public User findUserByUserId(int userId) {
-		Optional<User> user = userRepository.findById(userId);
+    @Override
+    public void deleteUser(Users user) {
 
-		if (user == null) {
-			throw new NullPointerException();
-		}
-		return user.get();
-	}
+        userRepository.delete(user);
+        System.out.println("deleted user" + user);
 
-	@Override
-	public List<User> getAllUser() {
-		return userRepository.findAll();
-	}
+    }
 
-	@Override
-	public User setUserToHotelerFromUserId(int userId) {
-		User hotelUser = findUserByUserId(userId);
-		hotelUser.setHoteler(true);
+    @Override
+    public Users findUser(int userId) {
+        Users user = userRepository.findById(userId).orElse(null);
 
-		return userRepository.save(hotelUser);
-	}
+        if (user == null) {
+            throw new NullPointerException();
+        }
+        return user;
+    }
 
-	@Override
-	public User updateUserData(int userId, SignUpRequest request) {
-		User user = findUserByUserId(userId);
-		user.setAccount(request.getAccount());
-		user.setLastName(request.getLastName());
-		if (request.getFirstName() != null)
-			user.setFirstName(request.getFirstName());
-		if (request.getNickName() != null)
-			user.setNickName(request.getNickName());
-		if (request.getSex() != null)
-			user.setSex(request.getSex());
-		if (request.getPhoneNum() != null)
+    @Override
+    public List<Users> getAllUser() {
+        return userRepository.findAll();
+    }
 
-			user.setPhoneNum(request.getPhoneNum());
-		if (request.getAddress() != null)
-			user.setAddress(request.getAddress());
+    @Override
+    public Users setUserToHotelerFromUserId(int userId) {
+        Users hotelUser = findUser(userId);
+        hotelUser.setROLE(USER_ROLE.ROLE_HOTELER);
 
-		return userRepository.save(user);
-	}
+        return userRepository.save(hotelUser);
+    }
 
+    @Override
+    public Users updateUserData(Users user, UpdateProfileRequest request) {
+        user.setAccount(request.getAccount());
+        user.setLastName(request.getLastName());
+        if (request.getFirstName() != null)
+            user.setFirstName(request.getFirstName());
+        if (request.getNickName() != null)
+            user.setNickName(request.getNickName());
+        if (request.getSex() != null)
+            user.setSex(request.getSex());
+        if (request.getCustomSex() != null)
+            user.setCustomSex(request.getCustomSex());
+
+        if (request.getPhoneNum() != null)
+
+            user.setPhoneNum(request.getPhoneNum());
+        if (request.getAddress() != null)
+            user.setAddress(request.getAddress());
+
+        return userRepository.save(user);
+    }
+
+    @Override
+    public List<Hotel> getFavoriteHotels(Users user) {
+         return user.getFavoriteHotels();
+    }
+
+    @Override
+    public Users findUserByJwt(String jwt) {
+        String userName = jwtProvider.findUserNameFromJwt(jwt);
+        return userDetailService.findUserByUserNameFromAccountOrEmail(userName);
+    }
 }

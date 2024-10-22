@@ -6,20 +6,10 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Data
 @Entity
@@ -32,7 +22,7 @@ public class Hotel {
 	@ManyToOne
 	@JoinColumn(name = "boss_id", referencedColumnName = "userId")
 	@JsonIgnore
-	private User boss;
+	private Users boss;
 
 	@ElementCollection
 	@CollectionTable(name = "hotel_pictures", joinColumns = @JoinColumn(name = "hotel_id"))
@@ -54,13 +44,18 @@ public class Hotel {
 	@OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
 	private List<Comment> comments;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+	@CreationTimestamp
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date buildDate;
+
+	@UpdateTimestamp
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date fixedDate;
 
 	@ManyToMany
 	@JsonIgnore
-	private List<User> likedByUsers;
+	private List<Users> likedByUsers;
 
-	private double score = 3;
+	private double score;
 
 }
