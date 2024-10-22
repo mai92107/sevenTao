@@ -7,7 +7,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import lombok.Data;
 
+@Data
 @Entity
 public class Comment {
 
@@ -17,10 +19,11 @@ public class Comment {
 
 	private String comment;
 
+	private int rate;
+
 	@ManyToOne
+	@JsonIgnore
 	private Hotel hotel;
 
-	@JsonIgnore
-	@ManyToOne
-	private User user;
+	private String userName;
 }
