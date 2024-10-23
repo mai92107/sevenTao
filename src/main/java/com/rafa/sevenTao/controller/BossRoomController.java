@@ -27,7 +27,7 @@ public class BossRoomController {
     @Autowired
     RoomService roomService;
 
-    @PostMapping("/{hotelId}/create")
+    @PostMapping("/{hotelId}")
     public ResponseEntity<Room> createRoom(@RequestHeader("Authorization") String jwt, @PathVariable int hotelId, @RequestBody CreateRoomRequest request) {
         Users user = userService.findUserByJwt(jwt);
         Hotel hotel = hotelService.findHotelByHotelId(hotelId);
@@ -51,9 +51,10 @@ public class BossRoomController {
             return new ResponseEntity<>(HttpStatus.OK);
         else
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
+    };
 
-    ;
+
+
 
 //    @GetMapping("/room/{roomId}")
 //    public ResponseEntity<Room> findRoomByRoomId(@PathVariable int roomId) {

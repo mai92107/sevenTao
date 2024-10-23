@@ -111,12 +111,12 @@ public class HotelServiceImp implements HotelService {
         List<Hotel> bestHotels = hotels;
         if(hotels == null)
             bestHotels= getAllHotels();
-        bestHotels.sort(Comparator
+        return bestHotels.stream().sorted(Comparator
                 .comparingDouble(compareByScore)
                 .thenComparingInt(compareByOrders).reversed()
-                .thenComparing(compareByBuildDate, Comparator.reverseOrder()));
+                .thenComparing(compareByBuildDate, Comparator.reverseOrder()))
+                .limit(9).toList();
 
-        return bestHotels;
     }
 
     @Override
@@ -124,11 +124,11 @@ public class HotelServiceImp implements HotelService {
         List<Hotel> hotHotels = hotels;
         if(hotels == null)
             hotHotels= getAllHotels();
-        hotHotels.sort(Comparator
+        return hotHotels.stream().sorted(Comparator
                 .comparingInt(compareByOrders).reversed()
                 .thenComparingDouble(compareByScore)
-                .thenComparing(compareByBuildDate, Comparator.reverseOrder()));
-        return hotHotels;
+                .thenComparing(compareByBuildDate, Comparator.reverseOrder()))
+                .limit(9).toList();
     }
 
     @Override
@@ -136,11 +136,11 @@ public class HotelServiceImp implements HotelService {
         List<Hotel> newHotels = hotels;
         if(hotels == null)
             newHotels= getAllHotels();
-        newHotels.sort(Comparator
+        return newHotels.stream().sorted(Comparator
                 .comparing(compareByBuildDate, Comparator.reverseOrder())
                 .thenComparingDouble(compareByScore)
-                .thenComparingInt(compareByOrders).reversed());
-        return newHotels;
+                .thenComparingInt(compareByOrders).reversed())
+                .limit(9).toList();
     }
 
 

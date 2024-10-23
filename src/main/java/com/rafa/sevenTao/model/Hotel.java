@@ -38,10 +38,10 @@ public class Hotel {
 	@OneToOne
 	private Address address;
 
-	@OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "hotel", cascade = CascadeType.REMOVE)
 	private List<Room> rooms;
 
-	@OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "hotel", cascade = CascadeType.REMOVE)
 	private List<Comment> comments;
 
 	@CreationTimestamp

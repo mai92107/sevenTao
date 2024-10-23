@@ -35,11 +35,11 @@ public class Users {
 	private String phoneNum;
 	private String address;
 
-	@OneToMany(mappedBy = "boss", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "boss", cascade = CascadeType.REMOVE)
 	private List<Hotel> myHotels;
 
 	@JsonIgnore
-	@ManyToMany(mappedBy = "likedByUsers", cascade = CascadeType.ALL)
+	@ManyToMany(mappedBy = "likedByUsers", cascade = CascadeType.REMOVE)
 	private List<Hotel> favoriteHotels;
 
 	@Override

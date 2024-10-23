@@ -7,7 +7,7 @@ import com.rafa.sevenTao.request.CreateRoomRequest;
 public interface RoomService {
 	public Room createRoom(Hotel hotel, CreateRoomRequest request);
 
-	public boolean deleteRoomByRoomId(int roomId);
+	public boolean deleteRoomByRoomId(long roomId);
 
-	public Room findRoomByRoomId(int roomId);
+	public Room findRoomByRoomId(long roomId);
 }

@@ -8,7 +8,6 @@ import com.rafa.sevenTao.service.HotelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import com.rafa.sevenTao.model.Hotel;
@@ -18,7 +17,6 @@ import com.rafa.sevenTao.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-@CrossOrigin
 @RestController
 @RequestMapping("/member")
 public class UserController {

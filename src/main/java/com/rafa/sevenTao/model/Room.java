@@ -22,7 +22,8 @@ public class Room {
 	@ElementCollection
 	private List<String> specialties;
 
-	@OneToMany(mappedBy = "room")
+	@ElementCollection
+	@OneToMany(mappedBy = "room", cascade = CascadeType.REMOVE)
 	private List<RoomPrice> roomPrices;
 
 	private int roomSize;
@@ -33,7 +34,7 @@ public class Room {
 	@JsonIgnore
 	private Hotel hotel;
 
-	@OneToMany(mappedBy = "room")
+	@OneToMany(mappedBy = "room", cascade = CascadeType.REMOVE)
 	List<Order> orders;
 
 	private boolean available = true;

@@ -1,7 +1,11 @@
 package com.rafa.sevenTao.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import com.rafa.sevenTao.model.RoomPrice;
+import com.rafa.sevenTao.repository.RoomPriceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,39 +17,55 @@ import com.rafa.sevenTao.request.CreateRoomRequest;
 @Service
 public class RoomServiceImp implements RoomService {
 
-	@Autowired
-	RoomRepository roomRepository;
+    @Autowired
+    RoomRepository roomRepository;
 
-	@Override
-	public Room createRoom(Hotel hotel, CreateRoomRequest request) {
-		Room room = new Room();
+    @Autowired
+    RoomPriceRepository roomPriceRepository;
 
-		room.setRoomName(request.getRoomName());
-//		room.setRoomPrice(request.getRoomPrice());
-		room.setRoomPic(request.getRoomPic());
-		room.setSpecialties(request.getSpecialties());
-		room.setCapacity(request.getCapacity());
-		room.setRoomSize(request.getRoomSize());
-		room.setHotel(hotel);
+    @Override
+    public Room createRoom(Hotel hotel, CreateRoomRequest request) {
+        Room room = new Room();
 
-		return roomRepository.save(room);
-	}
+        room.setRoomName(request.getRoomName());
+        room.setSpecialties(request.getSpecialties());
+        room.setCapacity(request.getCapacity());
+        room.setRoomSize(request.getRoomSize());
+        room.setHotel(hotel);
 
-	@Override
-	public boolean deleteRoomByRoomId(int roomId) {
-		Optional<Room> room = roomRepository.findById(roomId);
-		if (room.isPresent()) {
-			roomRepository.deleteById(roomId);
-			System.out.println("roomId" + roomId + "已成功刪除");
-			return true;
-		} else
-			return false;
-	}
+        List<RoomPrice> roomPrices = new ArrayList<>();
+        request.getPrices().parallelStream().forEach(rp -> {
+            RoomPrice roomPrice = new RoomPrice();
+            roomPrice.setPrice(rp.getPrice());
+            roomPrice.setWeekDay(rp.getWeekDay());
+            roomPrice.setRoom(room);
+            roomPrices.add(roomPrice);
+        });
 
-	@Override
-	public Room findRoomByRoomId(int roomId) {
-		Room room = roomRepository.findById(roomId).orElse(null);
-		return room;
-	}
+        room.setRoomPrices(roomPrices);
+        room.setRoomPic(request.getRoomPic());
+        roomRepository.save(room);
+        roomPriceRepository.saveAll(roomPrices);
+
+
+        return room;
+    }
+
+    @Override
+    public boolean deleteRoomByRoomId(long roomId) {
+        Optional<Room> room = roomRepository.findById(roomId);
+        if (room.isPresent()) {
+            roomRepository.deleteById(roomId);
+            System.out.println("roomId" + roomId + "已成功刪除");
+            return true;
+        } else
+            return false;
+    }
+
+    @Override
+    public Room findRoomByRoomId(long roomId) {
+        Room room = roomRepository.findById(roomId).orElse(null);
+        return room;
+    }
 
 }
