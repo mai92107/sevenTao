@@ -34,16 +34,10 @@ public class OrderController {
 
         Users user = userService.findUserByJwt(jwt);
         Room room = roomService.findRoomByRoomId(request.getRoomId());
-        Order order = new Order();
+        System.out.println("我要訂這個房間"+room.getRoomName());
+        Order newOrder = orderService.createOrder(user,room,request.getCheckInDate(),request.getCheckOutDate());
 
-        order.setCheckInDate(request.getCheckInDate());
-        order.setCheckOutDate(request.getCheckOutDate());
-        order.setRoom(room);
-        order.setUser(user);
-        order.setTotalPrice(request.getTotalPrice());
-//        orderRepository.save(order);
-
-        return new ResponseEntity<>(order, HttpStatus.OK);
+        return new ResponseEntity<>(newOrder, HttpStatus.OK);
     }
 
     @GetMapping("/price")

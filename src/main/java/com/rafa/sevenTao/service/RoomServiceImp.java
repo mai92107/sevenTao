@@ -31,6 +31,7 @@ public class RoomServiceImp implements RoomService {
         room.setSpecialties(request.getSpecialties());
         room.setCapacity(request.getCapacity());
         room.setRoomSize(request.getRoomSize());
+        room.setAvailable(true);
         room.setHotel(hotel);
 
         List<RoomPrice> roomPrices = new ArrayList<>();
@@ -64,8 +65,7 @@ public class RoomServiceImp implements RoomService {
 
     @Override
     public Room findRoomByRoomId(long roomId) {
-        Room room = roomRepository.findById(roomId).orElse(null);
-        return room;
+        return roomRepository.findById(roomId).orElse(null);
     }
 
 }

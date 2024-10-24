@@ -2,12 +2,15 @@ package com.rafa.sevenTao.service;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
 import com.rafa.sevenTao.model.*;
 import com.rafa.sevenTao.repository.CommentRepository;
+import com.rafa.sevenTao.response.HotelsResponse;
+import com.rafa.sevenTao.response.RoomEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +32,9 @@ public class HotelServiceImp implements HotelService {
 
     @Autowired
     CommentRepository commentRepository;
+
+    @Autowired
+    OrderService orderService;
 
     @Override
     public Hotel createHotel(Users boss, CreateHotelRequest request) {
@@ -102,51 +108,141 @@ public class HotelServiceImp implements HotelService {
         return hotelRepository.findAll();
     }
 
+    @Override
+    public List<Hotel> findHotelsByDetail(Integer cityCode, Date start, Date end, Integer people, String keyword) {
+
+        return hotelRepository.findHotelsByDetail(cityCode, start, end, people, keyword);
+    }
+    @Override
+    public List<RoomEntity> convertRoomToDataRoom(List<Room> rooms,Date start, Date end, Integer people){
+        List<RoomEntity> dataRooms = new ArrayList<>();
+        System.out.println("收到rooms 幾間準備轉換"+rooms.size());
+
+        List<Room> filteredRoom = rooms.stream()
+                .filter(r -> {
+                    if (people != null) {
+                        return r.getCapacity() >= people;
+                    }
+                    return true;
+                })
+                .filter(r -> {
+                    if (start != null && end != null) {
+                        return r.getOrders() != null && r.getOrders().stream()
+                                .noneMatch(o -> o.getCheckOutDate().after(start) && o.getCheckInDate().before(end));
+                    }
+                    return true;
+                })
+                .toList();
+        System.out.println("過濾完的rooms有幾間"+filteredRoom.size());
+
+        filteredRoom.forEach(r -> {
+            RoomEntity re = new RoomEntity();
+            re.setRoomName(r.getRoomName());
+            re.setPrice(orderService.countPrice(r, start, end));
+            System.out.println("轉換的room名字及價格"+r.getRoomName()+orderService.countPrice(r, start, end));
+
+            re.setCapacity(r.getCapacity());
+            re.setStart(start);
+            re.setEnd(end);
+            re.setRoomId(r.getRoomId());
+            re.setSpecialties(r.getSpecialties());
+            re.setRoomSize(r.getRoomSize());
+            re.setAvailable(r.isAvailable());
+            dataRooms.add(re);
+        });
+        System.out.println("轉換完的rooms有幾間"+dataRooms.size());
+
+        return dataRooms;
+    }
+
+    private HotelsResponse filterInvalidRoom(HotelsResponse hotelCardResponse, Date start, Date end, Integer people) {
+        // 過濾符合條件的房間
+        List<Room> newRooms = hotelCardResponse.getRooms().stream()
+                .filter(r -> r.getCapacity() >= people) // 檢查房間容量是否足夠
+                .filter(r -> r.getOrders().stream() // 檢查是否有訂單與當前查詢衝突
+                        .noneMatch(o -> o.getCheckOutDate().after(start) && o.getCheckInDate().before(end))) // 沒有與查詢日期重疊的訂單
+                .toList();
+
+        hotelCardResponse.setRooms(newRooms); // 設置轉換後的房間列表
+        return hotelCardResponse;
+    }
+
+
     private final ToDoubleFunction<Hotel> compareByScore = (Hotel::getScore);
-    private final ToIntFunction<Hotel> compareByOrders = (hotel -> hotel.getRooms().stream().mapToInt(room -> room.getOrders().size()).sum());
-    private final Function<Hotel,Date> compareByBuildDate = (Hotel::getBuildDate);
+    private final ToIntFunction<Hotel> compareByOrders = (hotel ->
+            hotel.getRooms().stream().mapToInt(room ->
+                    room.getOrders().size()).sum());
+    private final Function<Hotel, Date> compareByBuildDate = (Hotel::getBuildDate);
+
+    public List<HotelsResponse> conversion(List<Hotel> hotels) {
+        List<HotelsResponse> responseHotel = new ArrayList<>();
+        if (hotels.isEmpty())
+            return null;
+        hotels.forEach(h -> {
+            HotelsResponse hc = new HotelsResponse();
+            hc.setHotelChName(h.getChName());
+            hc.setHotelId(h.getHotelId());
+            hc.setHotelEnName(h.getEnName());
+            if (!h.getPictures().isEmpty())
+                hc.setHotelPic(h.getPictures().getFirst());
+            hc.setRate(h.getScore());
+            hc.setRooms(h.getRooms());
+            hc.setDescription(h.getIntroduction());
+            responseHotel.add(hc);
+        });
+        return responseHotel;
+    }
 
     @Override
     public List<Hotel> getHotelsByScore(List<Hotel> hotels) {
         List<Hotel> bestHotels = hotels;
-        if(hotels == null)
-            bestHotels= getAllHotels();
-        return bestHotels.stream().sorted(Comparator
-                .comparingDouble(compareByScore)
-                .thenComparingInt(compareByOrders).reversed()
-                .thenComparing(compareByBuildDate, Comparator.reverseOrder()))
+        if (hotels == null)
+            bestHotels = getAllHotels();
+
+        bestHotels = bestHotels.stream().sorted(Comparator
+                        .comparingDouble(compareByScore)
+                        .thenComparingInt(compareByOrders).reversed()
+                        .thenComparing(compareByBuildDate, Comparator.reverseOrder()))
                 .limit(9).toList();
 
+        return bestHotels;
     }
 
     @Override
     public List<Hotel> getHotelsByOrders(List<Hotel> hotels) {
         List<Hotel> hotHotels = hotels;
-        if(hotels == null)
-            hotHotels= getAllHotels();
-        return hotHotels.stream().sorted(Comparator
-                .comparingInt(compareByOrders).reversed()
-                .thenComparingDouble(compareByScore)
-                .thenComparing(compareByBuildDate, Comparator.reverseOrder()))
+        if (hotels == null)
+            hotHotels = getAllHotels();
+        hotHotels = hotHotels.stream().sorted(Comparator
+                        .comparingInt(compareByOrders).reversed()
+                        .thenComparingDouble(compareByScore)
+                        .thenComparing(compareByBuildDate, Comparator.reverseOrder()))
                 .limit(9).toList();
+
+        return hotHotels;
     }
+
 
     @Override
     public List<Hotel> getHotelsByBuildDate(List<Hotel> hotels) {
         List<Hotel> newHotels = hotels;
-        if(hotels == null)
-            newHotels= getAllHotels();
-        return newHotels.stream().sorted(Comparator
-                .comparing(compareByBuildDate, Comparator.reverseOrder())
-                .thenComparingDouble(compareByScore)
-                .thenComparingInt(compareByOrders).reversed())
+        if (hotels == null)
+            newHotels = getAllHotels();
+        newHotels = newHotels.stream().sorted(Comparator
+                        .comparing(compareByBuildDate, Comparator.reverseOrder())
+                        .thenComparingDouble(compareByScore)
+                        .thenComparingInt(compareByOrders).reversed())
                 .limit(9).toList();
+
+        return newHotels;
     }
 
 
     @Override
     public Hotel updateHotelData(int hotelId, CreateHotelRequest request) {
-        Hotel hotel = hotelRepository.findById(hotelId).orElse(null);
+        Hotel hotel = hotelRepository.findById(hotelId).orElseThrow(
+                ()-> new RuntimeException("Hotel not found with id: " + hotelId)
+        );
 
         List<String> pictures = new ArrayList<>();
         if (request.getPictures().get("firstPic") != null)
@@ -161,7 +257,7 @@ public class HotelServiceImp implements HotelService {
             hotel.setEnName(request.getEnName());
             hotel.setIntroduction(request.getIntroduction());
             hotel.setFacilities(request.getFacilities());
-
+            hotel.setFixedDate(new Date());
             Address address = new Address();
             address.setCity(request.getAddress().getCity());
             address.setDistrict(request.getAddress().getDistrict());
@@ -170,6 +266,7 @@ public class HotelServiceImp implements HotelService {
             addressRepository.save(address);
 
             hotel.setAddress(address);
+
 
             if (request.getRooms() != null)
                 hotel.setRooms(request.getRooms());
@@ -200,7 +297,8 @@ public class HotelServiceImp implements HotelService {
     @Override
     public List<Integer> getHotelCity() {
         List<Address> allAddress = hotelRepository.findAllAddress();
-        return allAddress.parallelStream().map(Address::getCity).distinct().collect(Collectors.toList());
+        return allAddress.parallelStream().map(Address::getCity)
+                .distinct().collect(Collectors.toList());
     }
 
     @Override
@@ -227,14 +325,46 @@ public class HotelServiceImp implements HotelService {
     }
 
     @Override
-    public List<Hotel> findHotelsByDetail(int cityCode, Date start, Date end, int people) {
-        return hotelRepository.findHotelsByDetail(cityCode, start, end, people);
+    public List<HotelsResponse> convertHotelFilterRoom(List<Hotel> hotels, Date start, Date end, Integer people) {
+        return conversion(hotels).stream().map(hr ->
+                filterInvalidRoom(hr, start, end, people))
+                .collect(Collectors.toList());
     }
 
-    @Override
-    public List<Hotel> findHotelsByKeyword(String keyword) {
-        return hotelRepository.searchHotelsByKeyword(keyword);
+    public Map<String, List<Order>> findUserAllHotelsOrders(Users user, Predicate<Order> orderFilter) {
+        Map<String, List<Order>> hotelOrders = new HashMap<>();
+        user.getMyHotels().forEach(hotel -> {
+            List<Order> orders = hotel.getRooms().stream()
+                    .flatMap(room -> room.getOrders().stream().filter(orderFilter))
+                    .collect(Collectors.toList());
+            hotelOrders.put(hotel.getChName(), orders);
+        });
+
+        return hotelOrders;
     }
+
+    public Map<String, List<List<Order>>> findOrdersFromUser(Users user) {
+        Map<String, List<List<Order>>> hotelOrders = new HashMap<>();
+
+        List<Hotel> hotels = findHotelsByUser(user);
+        hotels.forEach(h -> {
+            List<Order> validOrder = new ArrayList<>();
+            List<Order> expiredOrder = new ArrayList<>();
+            h.getRooms().forEach(r ->
+                    r.getOrders().forEach(o -> {
+                        if (o.checkValidOrder())
+                            validOrder.add(o);
+                        else expiredOrder.add(o);
+                    })
+            );
+            List<List<Order>> hotelOrder = new ArrayList<>();
+            hotelOrder.add(validOrder);
+            hotelOrder.add(expiredOrder);
+            hotelOrders.put(h.getChName(), hotelOrder);
+        });
+        return hotelOrders;
+    }
+
 
     private double updateHotelScore(List<Comment> comments) {
         return comments.parallelStream().mapToInt(Comment::getRate).average().getAsDouble();

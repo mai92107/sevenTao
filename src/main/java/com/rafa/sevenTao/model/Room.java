@@ -39,5 +39,19 @@ public class Room {
 
 	private boolean available = true;
 
-
+	@Override
+	public String toString() {
+		return "Room{" +
+				"roomId=" + roomId +
+				", roomPic='" + roomPic + '\'' +
+				", roomName='" + roomName + '\'' +
+				", specialties=" + specialties +
+				", roomPrices=" + roomPrices +
+				", roomSize=" + roomSize +
+				", capacity=" + capacity +
+				", hotelId=" + hotel.getHotelId() +
+				", orders=" + orders +
+				", available=" + available +
+				'}';
+	}
 }

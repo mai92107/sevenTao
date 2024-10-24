@@ -24,13 +24,18 @@ public interface HotelRepository extends JpaRepository<Hotel, Integer> {
     @Query("SELECT h FROM Hotel h " +
             "JOIN h.address a " +
             "JOIN h.rooms r " +
-            "LEFT JOIN r.`orders` o " +
-            "WHERE a.city = :cityCode " +
-            "AND r.capacity >= :people " +
-            "AND (o.checkInDate < :start OR o.checkInDate >= :end OR o IS NULL)")
-    public List<Hotel> findHotelsByDetail(@Param("cityCode") int cityCode, @Param("start") Date start, @Param("end") Date end, @Param("people") int people);
+            "LEFT JOIN r.orders o " +
+            "WHERE (:cityCode IS NULL OR a.city = :cityCode) " +
+            "AND (:people IS NULL OR r.capacity >= :people) " +
+            "AND (o IS NULL OR o.checkOutDate < :start OR o.checkInDate >= :end) " +
+            "AND (:keyword IS NULL OR :keyword = '' OR LOWER(h.chName) LIKE LOWER(CONCAT('%', :keyword, '%'))" +
+            "OR LOWER(h.enName) LIKE LOWER(CONCAT('%', :keyword, '%'))" +
+            "OR LOWER(h.introduction) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    public List<Hotel> findHotelsByDetail(@Param("cityCode") Integer cityCode,
+                                          @Param("start") Date start,
+                                          @Param("end") Date end,
+                                          @Param("people") Integer people,
+                                          @Param("keyword") String keyword);
 
 
-    @Query("SELECT h FROM Hotel h WHERE LOWER(h.chName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(h.enName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(h.introduction) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-    public List<Hotel> searchHotelsByKeyword(String keyword);
 }

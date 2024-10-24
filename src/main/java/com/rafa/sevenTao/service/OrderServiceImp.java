@@ -1,8 +1,10 @@
 package com.rafa.sevenTao.service;
 
 import com.rafa.sevenTao.model.*;
+import com.rafa.sevenTao.repository.OrderRepository;
 import com.rafa.sevenTao.repository.RoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -15,20 +17,20 @@ public class OrderServiceImp implements OrderService {
     @Autowired
     RoomRepository roomRepository;
 
+    @Autowired
+    OrderRepository orderRepository;
+
 
     @Override
-    public Room CreateOrder(Users user, Room room, Date start, Date end) {
+    public Order createOrder(Users user, Room room, Date start, Date end) {
 
         Order newOrder = new Order();
         newOrder.setUser(user);
         newOrder.setTotalPrice(countPrice(room, start, end));
         newOrder.setCheckInDate(start);
         newOrder.setCheckOutDate(end);
-
-        List<Order> orders = room.getOrders();
-        orders.add(newOrder);
-        room.setOrders(orders);
-        return roomRepository.save(room);
+        newOrder.setRoom(room);
+        return orderRepository.save(newOrder);
     }
 
     @Override
@@ -78,6 +80,8 @@ public class OrderServiceImp implements OrderService {
         return price;
     }
 
+
+
 //    public int countBySpecialDate(Room room, Date date) {
 //
 //        List<RoomPrice> fitRules = room.getRoomPrices()
@@ -95,17 +99,19 @@ public class OrderServiceImp implements OrderService {
 
     @Override
     public int countPrice(Room room, Date checkInDate, Date checkOutDate) {
+        System.out.println("計算價格的房間為 "+room.getRoomName());
         if (!checkInDate.before(checkOutDate)) {
             return 0;
         }
         List<Date> livingDate = getDateFromRange(checkInDate, checkOutDate);
         int totalPrice = 0;
+        System.out.println("計算居住天數為 "+livingDate.size());
 
         if (livingDate != null) {
-            List<Integer> priceList = livingDate.parallelStream()
+            List<Integer> priceList = livingDate.stream()
                     .map(d -> countByDay(room, d))
                     .toList();
-
+            System.out.println("這間房間的價格表為"+priceList);
             totalPrice = priceList.parallelStream()
                     .mapToInt(p -> p)
                     .sum();

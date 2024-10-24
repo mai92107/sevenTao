@@ -1,7 +1,11 @@
 package com.rafa.sevenTao.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import com.rafa.sevenTao.model.Order;
+import com.rafa.sevenTao.model.Room;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -72,4 +76,13 @@ public class BossHotelController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 
+	@GetMapping("/hotel/orders")
+	public ResponseEntity<Map<String,List<List<Order>>>> getRoomsOrders(@RequestHeader("Authorization") String jwt){
+		Users user = userService.findUserByJwt(jwt);
+		Map<String,List<List<Order>>> hotelOrders = hotelService.findOrdersFromUser(user);
+		if (user != null)
+			return new ResponseEntity<>(hotelOrders, HttpStatus.OK);
+		else
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+	}
 }

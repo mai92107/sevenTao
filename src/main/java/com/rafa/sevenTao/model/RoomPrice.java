@@ -23,4 +23,13 @@ public class RoomPrice {
 
     private WeekDay weekDay;
 
+    @Override
+    public String toString() {
+        return "RoomPrice{" +
+                "roomPriceId=" + roomPriceId +
+                ", roomId=" + room.getRoomId() +
+                ", price=" + price +
+                ", weekDay=" + weekDay +
+                '}';
+    }
 }

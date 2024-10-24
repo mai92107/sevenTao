@@ -9,9 +9,10 @@ import java.util.Date;
 
 public interface OrderService {
 
-    public Room CreateOrder(Users user, Room room, Date start, Date end);
+    public Order createOrder(Users user, Room room, Date start, Date end);
 
     public boolean isRoomAvailable(Room room, Date start, Date end);
 
     public int countPrice(Room room, Date checkInDate, Date checkOutDate);
+
 }

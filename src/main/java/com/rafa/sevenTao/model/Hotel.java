@@ -6,6 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import com.rafa.sevenTao.response.RoomEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -58,4 +59,22 @@ public class Hotel {
 
 	private double score;
 
+	@Override
+	public String toString() {
+		return "Hotel{" +
+				"hotelId=" + hotelId +
+				", boss=" + boss +
+				", pictures=" + pictures +
+				", chName='" + chName + '\'' +
+				", enName='" + enName + '\'' +
+				", introduction='" + introduction + '\'' +
+				", facilities=" + facilities +
+				", address=" + address +
+				", rooms=" + rooms +
+				", comments=" + comments +
+				", buildDate=" + buildDate +
+				", fixedDate=" + fixedDate +
+				", score=" + score +
+				'}';
+	}
 }

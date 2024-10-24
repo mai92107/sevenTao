@@ -1,5 +1,6 @@
 package com.rafa.sevenTao.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -17,8 +18,10 @@ public class Order {
     private long id;
 
     @Column(nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date checkInDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Column(nullable = false)
     private Date checkOutDate;
 
@@ -27,11 +30,26 @@ public class Order {
     @JsonIgnore
     private Users user;
 
-    @ManyToOne
     @JsonIgnore
+    @ManyToOne
     private Room room;
 
     @Column(nullable = false)
     private int totalPrice;
 
+    public boolean checkValidOrder() {
+        return !this.getCheckOutDate().before(new Date());
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", checkInDate=" + checkInDate +
+                ", checkOutDate=" + checkOutDate +
+                ", totalPrice=" + totalPrice +
+                ", roomId=" + room.getRoomId() +
+                ", userId=" + user.getUserId() +
+                '}';
+    }
 }
