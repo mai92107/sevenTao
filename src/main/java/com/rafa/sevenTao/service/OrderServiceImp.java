@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -46,7 +47,7 @@ public class OrderServiceImp implements OrderService {
     }
 
     private List<Date> getDateFromRange(Date start, Date end) {
-        List<Date> allDate = new ArrayList<>();
+        List<Date> allDate = new CopyOnWriteArrayList<>();
         if (start.after(end))
             return null;
         while (start.before(end)) {

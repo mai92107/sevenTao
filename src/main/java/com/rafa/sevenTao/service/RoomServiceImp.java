@@ -3,6 +3,7 @@ package com.rafa.sevenTao.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.rafa.sevenTao.model.RoomPrice;
 import com.rafa.sevenTao.repository.RoomPriceRepository;
@@ -34,7 +35,7 @@ public class RoomServiceImp implements RoomService {
         room.setAvailable(true);
         room.setHotel(hotel);
 
-        List<RoomPrice> roomPrices = new ArrayList<>();
+        List<RoomPrice> roomPrices = new CopyOnWriteArrayList<>();
         request.getPrices().parallelStream().forEach(rp -> {
             RoomPrice roomPrice = new RoomPrice();
             roomPrice.setPrice(rp.getPrice());

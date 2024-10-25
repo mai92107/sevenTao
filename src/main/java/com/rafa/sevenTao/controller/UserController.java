@@ -1,8 +1,8 @@
 package com.rafa.sevenTao.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.rafa.sevenTao.model.Order;
 import com.rafa.sevenTao.request.UpdateProfileRequest;
@@ -75,7 +75,7 @@ public class UserController {
     @GetMapping("/historyOrders")
     public ResponseEntity<List<List<Order>>> getUserAllOrders(@RequestHeader("Authorization") String jwt){
         Users user = userService.findUserByJwt(jwt);
-        List<List<Order>> userOrder = new ArrayList<>();
+        List<List<Order>> userOrder = new CopyOnWriteArrayList<>();
         List<Order> historyOrders = orderService.getUserHistoryOrder(user);
         List<Order> futureOrders = orderService.getUserFutureOrder(user);
 

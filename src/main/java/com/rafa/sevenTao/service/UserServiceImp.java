@@ -1,8 +1,7 @@
 package com.rafa.sevenTao.service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.rafa.sevenTao.config.JwtProvider;
 import com.rafa.sevenTao.config.UserDetailService;
@@ -22,7 +21,7 @@ public class UserServiceImp implements UserService {
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
-    List<Users> allUsersData = new ArrayList<>();
+    List<Users> allUsersData = new CopyOnWriteArrayList<>();
 
     @Autowired
     UserRepository userRepository;

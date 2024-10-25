@@ -1,8 +1,8 @@
 package com.rafa.sevenTao.service;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
@@ -64,7 +64,7 @@ public class HotelServiceImp implements HotelService {
         }
         System.out.println(request.getPictures());
         Map<String, String> pictureMap = request.getPictures();
-        List<String> pictures = new ArrayList<>();
+        List<String> pictures = new CopyOnWriteArrayList<>();
 
         if (pictureMap != null) {
             if (pictureMap.get("firstPic") != null)
@@ -118,7 +118,7 @@ public class HotelServiceImp implements HotelService {
 
     @Override
     public List<RoomEntity> convertRoomToDataRoom(List<Room> rooms, Date start, Date end, Integer people) {
-        List<RoomEntity> dataRooms = new ArrayList<>();
+        List<RoomEntity> dataRooms = new CopyOnWriteArrayList<>();
         System.out.println("收到rooms 幾間準備轉換" + rooms.size());
 
         List<Room> filteredRoom = rooms.stream()
@@ -184,7 +184,7 @@ public class HotelServiceImp implements HotelService {
     private final Function<Hotel, Date> compareByBuildDate = (Hotel::getBuildDate);
 
     public List<HotelsResponse> conversion(List<Hotel> hotels) {
-        List<HotelsResponse> responseHotel = new ArrayList<>();
+        List<HotelsResponse> responseHotel = new CopyOnWriteArrayList<>();
         if (hotels.isEmpty())
             return null;
         hotels.forEach(h -> {
@@ -253,7 +253,7 @@ public class HotelServiceImp implements HotelService {
                 () -> new RuntimeException("Hotel not found with id: " + hotelId)
         );
 
-        List<String> pictures = new ArrayList<>();
+        List<String> pictures = new CopyOnWriteArrayList<>();
         if (request.getPictures().get("firstPic") != null)
             pictures.add(request.getPictures().get("firstPic"));
         if (request.getPictures().get("secondPic") != null)
@@ -359,8 +359,8 @@ public class HotelServiceImp implements HotelService {
 
         List<Hotel> hotels = findHotelsByBoss(user);
         hotels.forEach(h -> {
-            List<Order> validOrder = new ArrayList<>();
-            List<Order> expiredOrder = new ArrayList<>();
+            List<Order> validOrder = new CopyOnWriteArrayList<>();
+            List<Order> expiredOrder = new CopyOnWriteArrayList<>();
             h.getRooms().forEach(r ->
                     r.getOrders().forEach(o -> {
                         if (o.checkValidOrder())
@@ -368,7 +368,7 @@ public class HotelServiceImp implements HotelService {
                         else expiredOrder.add(o);
                     })
             );
-            List<List<Order>> hotelOrder = new ArrayList<>();
+            List<List<Order>> hotelOrder = new CopyOnWriteArrayList<>();
             hotelOrder.add(validOrder);
             hotelOrder.add(expiredOrder);
             hotelOrders.put(h.getChName(), hotelOrder);
