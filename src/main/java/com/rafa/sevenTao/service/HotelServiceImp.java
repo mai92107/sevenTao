@@ -46,7 +46,9 @@ public class HotelServiceImp implements HotelService {
         newHotel.setIntroduction(request.getIntroduction());
         newHotel.setFacilities(request.getFacilities());
         newHotel.setBoss(boss);
+        newHotel.setScore(0);
         newHotel = hotelRepository.save(newHotel);
+
 
         // 創建並儲存地址
         Address address = request.getAddress();
@@ -93,7 +95,7 @@ public class HotelServiceImp implements HotelService {
     }
 
     @Override
-    public List<Hotel> findHotelsByUser(Users user) {
+    public List<Hotel> findHotelsByBoss(Users user) {
         return hotelRepository.findByBoss(user);
     }
 
@@ -113,10 +115,11 @@ public class HotelServiceImp implements HotelService {
 
         return hotelRepository.findHotelsByDetail(cityCode, start, end, people, keyword);
     }
+
     @Override
-    public List<RoomEntity> convertRoomToDataRoom(List<Room> rooms,Date start, Date end, Integer people){
+    public List<RoomEntity> convertRoomToDataRoom(List<Room> rooms, Date start, Date end, Integer people) {
         List<RoomEntity> dataRooms = new ArrayList<>();
-        System.out.println("收到rooms 幾間準備轉換"+rooms.size());
+        System.out.println("收到rooms 幾間準備轉換" + rooms.size());
 
         List<Room> filteredRoom = rooms.stream()
                 .filter(r -> {
@@ -133,13 +136,13 @@ public class HotelServiceImp implements HotelService {
                     return true;
                 })
                 .toList();
-        System.out.println("過濾完的rooms有幾間"+filteredRoom.size());
+        System.out.println("過濾完的rooms有幾間" + filteredRoom.size());
 
         filteredRoom.forEach(r -> {
             RoomEntity re = new RoomEntity();
             re.setRoomName(r.getRoomName());
             re.setPrice(orderService.countPrice(r, start, end));
-            System.out.println("轉換的room名字及價格"+r.getRoomName()+orderService.countPrice(r, start, end));
+            System.out.println("轉換的room名字及價格" + r.getRoomName() + orderService.countPrice(r, start, end));
 
             re.setCapacity(r.getCapacity());
             re.setStart(start);
@@ -150,9 +153,15 @@ public class HotelServiceImp implements HotelService {
             re.setAvailable(r.isAvailable());
             dataRooms.add(re);
         });
-        System.out.println("轉換完的rooms有幾間"+dataRooms.size());
+        System.out.println("轉換完的rooms有幾間" + dataRooms.size());
 
         return dataRooms;
+    }
+
+    @Override
+    public boolean deleteComment(long commentId) {
+        commentRepository.deleteById(commentId);
+        return false;
     }
 
     private HotelsResponse filterInvalidRoom(HotelsResponse hotelCardResponse, Date start, Date end, Integer people) {
@@ -180,14 +189,14 @@ public class HotelServiceImp implements HotelService {
             return null;
         hotels.forEach(h -> {
             HotelsResponse hc = new HotelsResponse();
-            hc.setHotelChName(h.getChName());
+            hc.setChName(h.getChName());
             hc.setHotelId(h.getHotelId());
-            hc.setHotelEnName(h.getEnName());
+            hc.setEnName(h.getEnName());
             if (!h.getPictures().isEmpty())
-                hc.setHotelPic(h.getPictures().getFirst());
-            hc.setRate(h.getScore());
+                hc.setPicture(h.getPictures().getFirst());
+            hc.setScore(h.getScore());
             hc.setRooms(h.getRooms());
-            hc.setDescription(h.getIntroduction());
+            hc.setIntroduction(h.getIntroduction());
             responseHotel.add(hc);
         });
         return responseHotel;
@@ -241,7 +250,7 @@ public class HotelServiceImp implements HotelService {
     @Override
     public Hotel updateHotelData(int hotelId, CreateHotelRequest request) {
         Hotel hotel = hotelRepository.findById(hotelId).orElseThrow(
-                ()-> new RuntimeException("Hotel not found with id: " + hotelId)
+                () -> new RuntimeException("Hotel not found with id: " + hotelId)
         );
 
         List<String> pictures = new ArrayList<>();
@@ -302,51 +311,53 @@ public class HotelServiceImp implements HotelService {
     }
 
     @Override
-    public Hotel addComment(Users user, Hotel hotel, Comment comment) {
-        comment.setHotel(hotel);
-        String name = user.getNickName();
-        ;
-        if (name == null)
-            name = user.getFirstName();
-        if (name == null)
-            name = user.getLastName();
+    public Comment addComment(Users user, Hotel hotel, Comment comment) {
+        Comment newComment = new Comment();
+        newComment.setComment(comment.getComment());
+        newComment.setHotel(hotel);
+        newComment.setUserId(user.getUserId());
+        newComment.setRate(comment.getRate());
+        newComment.setUserPhoto(user.getPhoto());
 
-        comment.setUserName(name);
+        String userName = "";
+        if (user.getNickName() != null) {
+            userName = user.getNickName();
+            System.out.println("評論名字決定採用 " + userName);
+        } else if (user.getFirstName() != null) {
+            userName = user.getFirstName();
+            System.out.println("評論名字決定採用 " + userName);
+        } else {
+            userName = user.getLastName();
+            System.out.println("評論名字決定採用 " + userName);
+        }
+
+        newComment.setUserName(userName);
+
         List<Comment> comments = hotel.getComments();
-        comments.addFirst(comment);
+        comments.addFirst(newComment);
         hotel.setComments(comments);
 
         double averageScore = updateHotelScore(comments);
         if (comments.size() > 5)
             hotel.setScore(averageScore);
         System.out.println("hotel " + hotel.getChName() + "現在平均分數為" + averageScore);
+        hotelRepository.save(hotel);
 
-        return hotelRepository.save(hotel);
+        return commentRepository.save(newComment);
     }
 
     @Override
     public List<HotelsResponse> convertHotelFilterRoom(List<Hotel> hotels, Date start, Date end, Integer people) {
         return conversion(hotels).stream().map(hr ->
-                filterInvalidRoom(hr, start, end, people))
+                        filterInvalidRoom(hr, start, end, people))
                 .collect(Collectors.toList());
     }
 
-    public Map<String, List<Order>> findUserAllHotelsOrders(Users user, Predicate<Order> orderFilter) {
-        Map<String, List<Order>> hotelOrders = new HashMap<>();
-        user.getMyHotels().forEach(hotel -> {
-            List<Order> orders = hotel.getRooms().stream()
-                    .flatMap(room -> room.getOrders().stream().filter(orderFilter))
-                    .collect(Collectors.toList());
-            hotelOrders.put(hotel.getChName(), orders);
-        });
 
-        return hotelOrders;
-    }
-
-    public Map<String, List<List<Order>>> findOrdersFromUser(Users user) {
+    public Map<String, List<List<Order>>> findOrdersFromBoss(Users user) {
         Map<String, List<List<Order>>> hotelOrders = new HashMap<>();
 
-        List<Hotel> hotels = findHotelsByUser(user);
+        List<Hotel> hotels = findHotelsByBoss(user);
         hotels.forEach(h -> {
             List<Order> validOrder = new ArrayList<>();
             List<Order> expiredOrder = new ArrayList<>();

@@ -32,8 +32,10 @@ public class BossRoomController {
         Users user = userService.findUserByJwt(jwt);
         Hotel hotel = hotelService.findHotelByHotelId(hotelId);
         Room room = roomService.createRoom(hotel, request);
-        if (user != null && room != null)
+        if (user != null && room != null) {
+            System.out.println("成功開了一個room" + room.getRoomName());
             return new ResponseEntity<>(room, HttpStatus.CREATED);
+        }
         else
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }

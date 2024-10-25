@@ -8,11 +8,11 @@ import java.util.List;
 @Data
 public class HotelsResponse {
 long hotelId;
-    String hotelChName;
-    String hotelEnName;
+    String chName;
+    String enName;
     List<Room> rooms;
-    String description;
-    String hotelPic;
-    double rate;
+    String introduction;
+    String picture;
+    double score;
 
 }

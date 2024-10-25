@@ -26,11 +26,9 @@ public class Order {
     private Date checkOutDate;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
     @JsonIgnore
     private Users user;
 
-    @JsonIgnore
     @ManyToOne
     private Room room;
 

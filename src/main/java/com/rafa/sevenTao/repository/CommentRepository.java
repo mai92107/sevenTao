@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CommentRepository extends JpaRepository<Comment,Integer> {
+public interface CommentRepository extends JpaRepository<Comment,Long> {
 
     @Query("SELECT SUM(c.rate) FROM Comment c WHERE c.hotel = :hotel")
     public int getAllCommentScores(@Param("hotel") Hotel hotel);

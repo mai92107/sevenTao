@@ -13,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-
-
 @RestController
 @RequestMapping("/hotel/order")
 public class OrderController {
@@ -34,16 +32,16 @@ public class OrderController {
 
         Users user = userService.findUserByJwt(jwt);
         Room room = roomService.findRoomByRoomId(request.getRoomId());
-        System.out.println("我要訂這個房間"+room.getRoomName());
-        Order newOrder = orderService.createOrder(user,room,request.getCheckInDate(),request.getCheckOutDate());
+        System.out.println("我要訂這個房間" + room.getRoomName());
+        Order newOrder = orderService.createOrder(user, room, request.getCheckInDate(), request.getCheckOutDate());
 
         return new ResponseEntity<>(newOrder, HttpStatus.OK);
     }
 
     @GetMapping("/price")
-    public ResponseEntity<Integer> countRoomPrice(@RequestBody CountPriceRequest countPriceRequest){
+    public ResponseEntity<Integer> countRoomPrice(@RequestBody CountPriceRequest countPriceRequest) {
         Room room = roomService.findRoomByRoomId(countPriceRequest.getRoomId());
-        int price = orderService.countPrice(room,countPriceRequest.getStart(),countPriceRequest.getEnd());
-return new ResponseEntity<>(price, HttpStatus.OK);
+        int price = orderService.countPrice(room, countPriceRequest.getStart(), countPriceRequest.getEnd());
+        return new ResponseEntity<>(price, HttpStatus.OK);
     }
 }

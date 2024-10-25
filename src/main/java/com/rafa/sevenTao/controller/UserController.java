@@ -1,10 +1,13 @@
 package com.rafa.sevenTao.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.rafa.sevenTao.model.Order;
 import com.rafa.sevenTao.request.UpdateProfileRequest;
 import com.rafa.sevenTao.service.HotelService;
+import com.rafa.sevenTao.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +29,9 @@ public class UserController {
 
     @Autowired
     HotelService hotelService;
+
+    @Autowired
+    OrderService orderService;
 
     @DeleteMapping()
     public ResponseEntity<?> deleteUserByEmail(@RequestBody Map<String, String> request) {
@@ -64,6 +70,20 @@ public class UserController {
         List<Hotel> favoriteHotels = userService.getFavoriteHotels(user);
         boolean isFavoriteHotel = favoriteHotels.contains(hotel);
         return new ResponseEntity<>(isFavoriteHotel, HttpStatus.OK);
+    }
+
+    @GetMapping("/historyOrders")
+    public ResponseEntity<List<List<Order>>> getUserAllOrders(@RequestHeader("Authorization") String jwt){
+        Users user = userService.findUserByJwt(jwt);
+        List<List<Order>> userOrder = new ArrayList<>();
+        List<Order> historyOrders = orderService.getUserHistoryOrder(user);
+        List<Order> futureOrders = orderService.getUserFutureOrder(user);
+
+        userOrder.add(historyOrders);
+        userOrder.add(futureOrders);
+
+        return new ResponseEntity<>(userOrder, HttpStatus.OK);
+
     }
 
 

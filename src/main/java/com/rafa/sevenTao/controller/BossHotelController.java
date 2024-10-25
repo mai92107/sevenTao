@@ -60,7 +60,7 @@ public class BossHotelController {
 	public ResponseEntity<List<Hotel>> findHotelsByBoss(@RequestHeader("Authorization") String jwt) {
 		System.out.println("this is the jwt : "+jwt);
 		Users user = userService.findUserByJwt(jwt);
-		List<Hotel> myHotels = hotelService.findHotelsByUser(user);
+		List<Hotel> myHotels = hotelService.findHotelsByBoss(user);
 		if (myHotels != null)
 			return new ResponseEntity<>(myHotels, HttpStatus.OK);
 		else
@@ -79,7 +79,7 @@ public class BossHotelController {
 	@GetMapping("/hotel/orders")
 	public ResponseEntity<Map<String,List<List<Order>>>> getRoomsOrders(@RequestHeader("Authorization") String jwt){
 		Users user = userService.findUserByJwt(jwt);
-		Map<String,List<List<Order>>> hotelOrders = hotelService.findOrdersFromUser(user);
+		Map<String,List<List<Order>>> hotelOrders = hotelService.findOrdersFromBoss(user);
 		if (user != null)
 			return new ResponseEntity<>(hotelOrders, HttpStatus.OK);
 		else

@@ -26,4 +26,7 @@ public class Comment {
 	private Hotel hotel;
 
 	private String userName;
+	private String userPhoto;
+
+	private long userId;
 }

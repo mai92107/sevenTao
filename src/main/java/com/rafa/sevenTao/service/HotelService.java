@@ -15,7 +15,7 @@ public interface HotelService {
 
     public boolean deleteHotelByHotelId(int hotelId);
 
-    public List<Hotel> findHotelsByUser(Users user);
+    public List<Hotel> findHotelsByBoss(Users user);
 
     public Hotel findHotelByHotelId(int hotelId);
 
@@ -36,13 +36,15 @@ public interface HotelService {
 
     public List<HotelsResponse> convertHotelFilterRoom(List<Hotel> hotels, Date start, Date end, Integer people);
 
-    public Hotel addComment(Users user, Hotel hotel, Comment comment);
+    public Comment addComment(Users user, Hotel hotel, Comment comment);
 
     public List<Hotel> findHotelsByDetail(Integer cityCode, Date start, Date end, Integer people, String keyword);
 
-    public Map<String, List<List<Order>>> findOrdersFromUser(Users user);
+    public Map<String, List<List<Order>>> findOrdersFromBoss(Users user);
 
     public List<HotelsResponse> conversion(List<Hotel> hotels);
 
     public List<RoomEntity> convertRoomToDataRoom(List<Room> rooms, Date start, Date end, Integer people);
+
+    public boolean deleteComment(long commentId);
 }

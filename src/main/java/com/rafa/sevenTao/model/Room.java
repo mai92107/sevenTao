@@ -34,6 +34,7 @@ public class Room {
 	@JsonIgnore
 	private Hotel hotel;
 
+	@JsonIgnore
 	@OneToMany(mappedBy = "room", cascade = CascadeType.REMOVE)
 	List<Order> orders;
 

@@ -6,6 +6,8 @@ import com.rafa.sevenTao.model.Room;
 import com.rafa.sevenTao.model.Users;
 
 import java.util.Date;
+import java.util.List;
+import java.util.ListResourceBundle;
 
 public interface OrderService {
 
@@ -15,4 +17,7 @@ public interface OrderService {
 
     public int countPrice(Room room, Date checkInDate, Date checkOutDate);
 
+    public List<Order> getUserHistoryOrder(Users user);
+
+    public List<Order> getUserFutureOrder(Users user);
 }

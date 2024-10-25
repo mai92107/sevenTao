@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImp implements OrderService {
@@ -35,7 +36,7 @@ public class OrderServiceImp implements OrderService {
 
     @Override
     public boolean isRoomAvailable(Room room, Date start, Date end) {
-        if (room.getOrders().size() == 0) {
+        if (room.getOrders().isEmpty()) {
             return true;
         }
         return room.getOrders()
@@ -118,6 +119,16 @@ public class OrderServiceImp implements OrderService {
         }
 
         return totalPrice;
+    }
+
+    @Override
+    public List<Order> getUserHistoryOrder(Users user) {
+        return user.getOrders().stream().filter(o->!o.getCheckOutDate().before(new Date())).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Order> getUserFutureOrder(Users user) {
+        return user.getOrders().stream().filter(o->o.getCheckOutDate().before(new Date())).collect(Collectors.toList());
     }
 
 }

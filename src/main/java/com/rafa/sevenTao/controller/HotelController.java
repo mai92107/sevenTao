@@ -9,6 +9,7 @@ import com.rafa.sevenTao.response.HotelEntity;
 import com.rafa.sevenTao.model.Users;
 import com.rafa.sevenTao.response.HotelPageWithValidRooms;
 import com.rafa.sevenTao.response.RoomEntity;
+import com.rafa.sevenTao.service.RoomService;
 import com.rafa.sevenTao.service.UserService;
 import jdk.swing.interop.SwingInterOpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class HotelController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    RoomService roomService;
+
     @GetMapping("/hotel/{hotelId}")
     public ResponseEntity<HotelPageWithValidRooms> findHotelByHotelId(@PathVariable int hotelId,
                                                                       @RequestParam(value = "start", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date start,
@@ -40,7 +44,7 @@ public class HotelController {
         List<Room> rooms = hotel.getRooms();
 
         HotelPageWithValidRooms dataHotel = new HotelPageWithValidRooms();
-        if(start==null&&end==null&&people==null || rooms.isEmpty()) {
+        if (start == null && end == null && people == null || rooms.isEmpty()) {
             dataHotel.setHotel(hotel);
             return new ResponseEntity<>(dataHotel, HttpStatus.OK);
         }
@@ -58,8 +62,7 @@ public class HotelController {
         if (dataHotel.getHotel() != null) {
             System.out.println("取得hotel: " + dataHotel.getHotel().getChName());
             return new ResponseEntity<>(dataHotel, HttpStatus.OK);
-        }
-        else
+        } else
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
@@ -81,12 +84,16 @@ public class HotelController {
     public ResponseEntity<Comment> addComment(@RequestHeader("Authorization") String jwt, @PathVariable int hotelId, @RequestBody Comment comment) {
         Users user = userService.findUserByJwt(jwt);
         Hotel hotel = hotelService.findHotelByHotelId(hotelId);
-        hotelService.addComment(user, hotel, comment);
-        return new ResponseEntity<>(comment, HttpStatus.OK);
+        Comment newComment = hotelService.addComment(user, hotel, comment);
+        return new ResponseEntity<>(newComment, HttpStatus.OK);
     }
 
-
-    ;
+    @DeleteMapping("/hotel/comment/{commentId}")
+    public ResponseEntity<?> deleteComment(@RequestHeader("Authorization") String jwt, @PathVariable int commentId) {
+        Users user = userService.findUserByJwt(jwt);
+        hotelService.deleteComment(commentId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    };
 
     @GetMapping("/hotels")
     public ResponseEntity<HotelEntity> getHotels() {

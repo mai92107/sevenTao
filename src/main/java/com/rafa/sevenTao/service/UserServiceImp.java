@@ -82,6 +82,8 @@ public class UserServiceImp implements UserService {
     public Users updateUserData(Users user, UpdateProfileRequest request) {
         user.setAccount(request.getAccount());
         user.setLastName(request.getLastName());
+        if(request.getPhoto()!=null)
+            user.setPhoto(request.getPhoto());
         if (request.getFirstName() != null)
             user.setFirstName(request.getFirstName());
         if (request.getNickName() != null)

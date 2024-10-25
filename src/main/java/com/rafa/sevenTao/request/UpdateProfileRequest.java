@@ -13,4 +13,5 @@ public class UpdateProfileRequest {
     String customSex;
     String phoneNum;
     String address;
+    String photo;
 }
