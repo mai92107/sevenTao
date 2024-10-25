@@ -97,9 +97,12 @@ public class HotelController {
 
     @GetMapping("/hotels")
     public ResponseEntity<HotelEntity> getHotels() {
+
         HotelEntity allHotelType = new HotelEntity();
-        if (hotelService.getHotelsByScore(null) == null || hotelService.getHotelsByOrders(null) == null || hotelService.getHotelsByBuildDate(null) == null || hotelService.getAllHotels() == null)
+        if (hotelService.getHotelsByScore(null) == null || hotelService.getHotelsByOrders(null) == null || hotelService.getHotelsByBuildDate(null) == null || hotelService.getAllHotels() == null) {
+
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         allHotelType.setBestHotels(hotelService.conversion(hotelService.getHotelsByScore(null)));
         allHotelType.setHotHotels(hotelService.conversion(hotelService.getHotelsByOrders(null)));
         allHotelType.setNewHotels(hotelService.conversion(hotelService.getHotelsByBuildDate(null)));

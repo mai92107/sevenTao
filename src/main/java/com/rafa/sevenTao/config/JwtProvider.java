@@ -22,7 +22,7 @@ public class JwtProvider {
 
     public boolean validateJwt(String jwt) {
         final String userName = findUserNameFromJwt(jwt);
-        return userName!=null&&isNotExpiredFromJwt(jwt);
+        return userName != null && isNotExpiredFromJwt(jwt);
     }
 
     public String findUserNameFromJwt(String jwt) {

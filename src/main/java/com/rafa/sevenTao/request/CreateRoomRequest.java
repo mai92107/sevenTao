@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class CreateRoomRequest {
 
-	private String roomPic;
+	private List<String> roomPic;
 
 	private String roomName;
 

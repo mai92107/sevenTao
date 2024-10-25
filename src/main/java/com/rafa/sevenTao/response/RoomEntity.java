@@ -11,7 +11,7 @@ public class RoomEntity {
 
     private long roomId;
 
-    private String roomPic;
+    private List<String> roomPic;
 
     private String roomName;
 

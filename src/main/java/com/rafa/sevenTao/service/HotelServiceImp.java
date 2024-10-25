@@ -212,7 +212,8 @@ public class HotelServiceImp implements HotelService {
                         .comparingDouble(compareByScore)
                         .thenComparingInt(compareByOrders).reversed()
                         .thenComparing(compareByBuildDate, Comparator.reverseOrder()))
-                .limit(9).toList();
+                .limit(9)
+                .toList();
 
         return bestHotels;
     }

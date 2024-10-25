@@ -15,7 +15,8 @@ public class Room {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long roomId;
 
-	private String roomPic;
+	@ElementCollection
+	private List<String> roomPic;
 
 	private String roomName;
 

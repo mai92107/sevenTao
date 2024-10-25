@@ -45,7 +45,8 @@ public class RoomServiceImp implements RoomService {
         });
 
         room.setRoomPrices(roomPrices);
-        room.setRoomPic(request.getRoomPic());
+        List<String> pictures = request.getRoomPic();
+        room.setRoomPic(pictures);
         roomRepository.save(room);
         roomPriceRepository.saveAll(roomPrices);
 
