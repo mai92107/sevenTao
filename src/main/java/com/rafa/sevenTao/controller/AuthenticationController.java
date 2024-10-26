@@ -20,9 +20,15 @@ public class AuthenticationController {
    AuthenticationService authenticationService;
 
     @PostMapping("/signup")
-    public ResponseEntity<Users> signUp(@RequestBody SignUpRequest request) {
-        Users user = authenticationService.signUp(request);
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    public ResponseEntity<LoginResponse> signUp(@RequestBody SignUpRequest request) {
+        try{
+            LoginResponse user = authenticationService.signUp(request);
+            return new ResponseEntity<>(user, HttpStatus.CREATED);
+        }catch (Exception e){
+            return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
+        }
+
+
     };
 
     @PostMapping("/signin")

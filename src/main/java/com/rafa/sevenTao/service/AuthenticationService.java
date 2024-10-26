@@ -13,6 +13,6 @@ public interface AuthenticationService {
 
     public LoginResponse verifyUser(SignInRequest request);
 
-    public Users signUp(SignUpRequest request);
+    public LoginResponse signUp(SignUpRequest request)throws Exception;
 
 }

@@ -41,6 +41,7 @@ public class UserServiceImp implements UserService {
         newUser.setFirstName(request.getFirstName());
         newUser.setEmail(request.getEmail());
         newUser.setPhoneNum(request.getPhoneNum());
+        newUser.setROLE(USER_ROLE.ROLE_CUSTOMER);
 
         userRepository.save(newUser);
         System.out.println(newUser.toString());

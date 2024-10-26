@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLClientInfoException;
 import java.util.Arrays;
 
 @Service
@@ -65,8 +66,20 @@ public class AuthenticationServiceImp implements AuthenticationService {
 
 
     @Override
-    public Users signUp(SignUpRequest request) {
+    public LoginResponse signUp(SignUpRequest request)throws Exception {
+
+        Users userCheck = userDetailService.findUserByUserNameFromAccountOrEmail(request.getEmail());
+        if(userCheck!=null)
+            throw new SQLClientInfoException();
+
         Users user = userService.adduser(request);
-        return userRepository.save(user);
+        userRepository.save(user);
+        UserDetails realUser = userDetailService.loadUserByUsername(request.getEmail());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword(), realUser.getAuthorities());
+        LoginResponse response = new LoginResponse();
+        response.setJwt(jwtProvider.generateToken(authentication));
+        response.setRole(user.getROLE());
+        response.setUsername(user.getEmail());
+        return  response;
     }
 }
