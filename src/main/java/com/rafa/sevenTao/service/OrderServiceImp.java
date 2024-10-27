@@ -25,13 +25,14 @@ public class OrderServiceImp implements OrderService {
 
     @Override
     public Order createOrder(Users user, Room room, Date start, Date end) {
-
+        System.out.println("我的order前入住時間是："+start+"離開時間是："+end);
         Order newOrder = new Order();
         newOrder.setUser(user);
         newOrder.setTotalPrice(countPrice(room, start, end));
         newOrder.setCheckInDate(start);
         newOrder.setCheckOutDate(end);
         newOrder.setRoom(room);
+        System.out.println("我的order後入住時間是："+newOrder.getCheckInDate()+"離開時間是："+newOrder.getCheckOutDate());
         return orderRepository.save(newOrder);
     }
 
@@ -130,6 +131,17 @@ public class OrderServiceImp implements OrderService {
     @Override
     public List<Order> getUserFutureOrder(Users user) {
         return user.getOrders().stream().filter(o->o.getCheckOutDate().before(new Date())).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean deletePastOrderFromUser(Users user,long orderId) {
+        Optional<Order> order = orderRepository.findById(orderId);
+        if(order.isEmpty()){
+            return false;
+        }
+        order.get().setUser(null);
+        orderRepository.save(order.get());
+        return true;
     }
 
 }

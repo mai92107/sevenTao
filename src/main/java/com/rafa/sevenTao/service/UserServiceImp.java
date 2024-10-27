@@ -72,11 +72,9 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public Users setUserToHotelerFromUserId(int userId) {
-        Users hotelUser = findUser(userId);
-        hotelUser.setROLE(USER_ROLE.ROLE_HOTELER);
-
-        return userRepository.save(hotelUser);
+    public void setUserToHotelerFromUserId(Users user) {
+        user.setROLE(USER_ROLE.ROLE_HOTELER);
+        userRepository.save(user);
     }
 
     @Override

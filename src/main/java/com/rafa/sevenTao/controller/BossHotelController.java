@@ -65,9 +65,10 @@ public class BossHotelController {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	};
 
-	@PutMapping("/{userId}")
+	@PutMapping
 	public ResponseEntity<Users> setUserToHotelerFromUserId(@RequestHeader("Authorization") String jwt) {
 		Users user = userService.findUserByJwt(jwt);
+		userService.setUserToHotelerFromUserId(user);
 		if (user != null)
 			return new ResponseEntity<Users>(user, HttpStatus.OK);
 		else

@@ -45,13 +45,9 @@ public class Hotel {
 	@OneToMany(mappedBy = "hotel", cascade = CascadeType.REMOVE)
 	private List<Comment> comments;
 
+	@Temporal(TemporalType.TIMESTAMP)
 	@CreationTimestamp
-	@Temporal(TemporalType.TIMESTAMP)
 	private Date buildDate;
-
-	@UpdateTimestamp
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date fixedDate;
 
 	@ManyToMany
 	@JsonIgnore
@@ -73,7 +69,6 @@ public class Hotel {
 				", rooms=" + rooms +
 				", comments=" + comments +
 				", buildDate=" + buildDate +
-				", fixedDate=" + fixedDate +
 				", score=" + score +
 				'}';
 	}

@@ -17,7 +17,7 @@ public interface UserService {
 
 	public List<Users> getAllUser();
 
-	public Users setUserToHotelerFromUserId(int userId);
+	public void setUserToHotelerFromUserId(Users user) ;
 
 	public Users updateUserData(Users user, UpdateProfileRequest request);
 

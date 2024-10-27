@@ -54,13 +54,14 @@ public class HotelController {
         List<RoomEntity> dataRooms = hotelService.convertRoomToDataRoom(rooms, start, end, people);
 
         System.out.println("搜尋這間hotel有幾間room符合標準: " + dataRooms.size());
+        System.out.println("我查詢入住時間是："+start+"離開時間是："+end);
 
         dataHotel.setHotel(hotel);
         dataHotel.setRooms(dataRooms);
 
+        System.out.println("最後入住時間是："+dataHotel.getRooms().stream().findFirst().get().getStart()+"離開時間是："+dataHotel.getRooms().stream().findFirst().get().getEnd());
 
         if (dataHotel.getHotel() != null) {
-            System.out.println("取得hotel: " + dataHotel.getHotel().getChName());
             return new ResponseEntity<>(dataHotel, HttpStatus.OK);
         } else
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

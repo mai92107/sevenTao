@@ -45,6 +45,7 @@ public class HotelServiceImp implements HotelService {
         newHotel.setEnName(request.getEnName());
         newHotel.setIntroduction(request.getIntroduction());
         newHotel.setFacilities(request.getFacilities());
+
         newHotel.setBoss(boss);
         newHotel.setScore(0);
         newHotel = hotelRepository.save(newHotel);
@@ -107,7 +108,9 @@ public class HotelServiceImp implements HotelService {
 
     @Override
     public List<Hotel> getAllHotels() {
-        return hotelRepository.findAll();
+        List<Hotel> allHotels = hotelRepository.findAll();
+        return allHotels.stream().filter(h-> !h.getRooms().isEmpty()).collect(Collectors.toList());
+
     }
 
     @Override
@@ -118,6 +121,7 @@ public class HotelServiceImp implements HotelService {
 
     @Override
     public List<RoomEntity> convertRoomToDataRoom(List<Room> rooms, Date start, Date end, Integer people) {
+        System.out.println("我的入住時間是："+start+"離開時間是："+end);
         List<RoomEntity> dataRooms = new CopyOnWriteArrayList<>();
         System.out.println("收到rooms 幾間準備轉換" + rooms.size());
 
@@ -147,10 +151,13 @@ public class HotelServiceImp implements HotelService {
             re.setCapacity(r.getCapacity());
             re.setStart(start);
             re.setEnd(end);
+            re.setRoomPic(r.getRoomPic());
             re.setRoomId(r.getRoomId());
             re.setSpecialties(r.getSpecialties());
             re.setRoomSize(r.getRoomSize());
             re.setAvailable(r.isAvailable());
+            System.out.println("我的新版本入住時間是："+re.getStart()+"離開時間是："+re.getEnd());
+
             dataRooms.add(re);
         });
         System.out.println("轉換完的rooms有幾間" + dataRooms.size());
@@ -204,48 +211,55 @@ public class HotelServiceImp implements HotelService {
 
     @Override
     public List<Hotel> getHotelsByScore(List<Hotel> hotels) {
-        List<Hotel> bestHotels = hotels;
-        if (hotels == null)
-            bestHotels = getAllHotels();
+        List<Hotel> bestHotels = (hotels == null) ? getAllHotels() : hotels;
 
-        bestHotels = bestHotels.stream().sorted(Comparator
-                        .comparingDouble(compareByScore)
+        return bestHotels.stream()
+                .sorted(Comparator
+                        .comparingDouble(compareByScore).reversed()
                         .thenComparingInt(compareByOrders).reversed()
-                        .thenComparing(compareByBuildDate, Comparator.reverseOrder()))
+                        .thenComparing(compareByBuildDate).reversed())
                 .limit(9)
                 .toList();
-
-        return bestHotels;
     }
+
 
     @Override
     public List<Hotel> getHotelsByOrders(List<Hotel> hotels) {
-        List<Hotel> hotHotels = hotels;
-        if (hotels == null)
-            hotHotels = getAllHotels();
-        hotHotels = hotHotels.stream().sorted(Comparator
-                        .comparingInt(compareByOrders).reversed()
-                        .thenComparingDouble(compareByScore)
-                        .thenComparing(compareByBuildDate, Comparator.reverseOrder()))
-                .limit(9).toList();
+        List<Hotel> hotHotels = (hotels == null) ? getAllHotels() : hotels;
 
-        return hotHotels;
+        return hotHotels.stream()
+                .sorted(Comparator
+                        .comparingInt(compareByOrders).reversed()
+                        .thenComparingDouble(compareByScore).reversed()
+                        .thenComparing(compareByBuildDate).reversed())
+                .limit(9)
+                .toList();
     }
+
 
 
     @Override
     public List<Hotel> getHotelsByBuildDate(List<Hotel> hotels) {
-        List<Hotel> newHotels = hotels;
-        if (hotels == null)
-            newHotels = getAllHotels();
-        newHotels = newHotels.stream().sorted(Comparator
-                        .comparing(compareByBuildDate, Comparator.reverseOrder())
-                        .thenComparingDouble(compareByScore)
-                        .thenComparingInt(compareByOrders).reversed())
-                .limit(9).toList();
+        List<Hotel> newHotels = (hotels == null) ? getAllHotels() : hotels;
 
-        return newHotels;
+//        return newHotels.stream()
+//                .sorted(Comparator
+//                        .comparing(compareByBuildDate).reversed()
+//                        .thenComparingDouble(compareByScore).reversed()
+//                        .thenComparingInt(compareByOrders).reversed())
+//                .limit(9)
+//                .toList();
+        List<Hotel> hotel =  newHotels.stream()
+                .sorted(Comparator
+                        .comparing(compareByBuildDate).reversed()
+                        .thenComparingDouble(compareByScore).reversed()
+                        .thenComparingInt(compareByOrders).reversed())
+                .limit(9)
+                .toList();
+        hotel.forEach(h-> System.out.println("Hotel"+h.getChName()+"建立日期是"+h.getBuildDate()));
+        return hotel;
     }
+
 
 
     @Override
@@ -267,7 +281,6 @@ public class HotelServiceImp implements HotelService {
             hotel.setEnName(request.getEnName());
             hotel.setIntroduction(request.getIntroduction());
             hotel.setFacilities(request.getFacilities());
-            hotel.setFixedDate(new Date());
             Address address = new Address();
             address.setCity(request.getAddress().getCity());
             address.setDistrict(request.getAddress().getDistrict());

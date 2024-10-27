@@ -20,4 +20,6 @@ public interface OrderService {
     public List<Order> getUserHistoryOrder(Users user);
 
     public List<Order> getUserFutureOrder(Users user);
+
+    public boolean deletePastOrderFromUser(Users user,long OrderId);
 }
