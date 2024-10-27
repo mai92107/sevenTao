@@ -44,4 +44,14 @@ public class OrderController {
         int price = orderService.countPrice(room, countPriceRequest.getStart(), countPriceRequest.getEnd());
         return new ResponseEntity<>(price, HttpStatus.OK);
     }
+
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<?> deletePastOrderFromUser(@RequestHeader("Authorization") String jwt, @PathVariable long orderId) {
+        Users user = userService.findUserByJwt(jwt);
+        System.out.println("我要刪除order"+orderId);
+        if (orderService.deletePastOrderFromUser(user, orderId))
+            return new ResponseEntity<>(HttpStatus.OK);
+        else
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 }
