@@ -92,6 +92,7 @@ public class UserServiceImp implements UserService {
         if (request.getCustomSex() != null)
             user.setCustomSex(request.getCustomSex());
 
+
         if (request.getPhoneNum() != null)
 
             user.setPhoneNum(request.getPhoneNum());
